@@ -10,7 +10,7 @@ Gramatica: c;
     Asignacion -> identificador = cadena | Expresion;
     While -> while(Condicion) bloque de instrucciones | instruccion
     Do -> do bloque de instrucciones | intruccion while(Condicion)
-    For -> for(Asignacion Condicion; Incremento) Bloque de instruccones | Intruccion 
+    For -> for(Asignacion Condicion; Incremento) Bloque de instruccones | Instruccion 
     Incremento -> Identificador ++ | --
     Switch -> switch (Expresion) {Lista de casos}
     ListaDeCasos -> case Expresion: Bloque de instrucciones | Instruccion (break;)? (ListaDeCasos)?
