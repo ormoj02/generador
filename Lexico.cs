@@ -7,6 +7,8 @@ namespace Generador
     {
         protected StreamReader archivo;
         protected StreamWriter log;
+        protected StreamWriter lenguaje;
+        protected StreamWriter programa;
 
         const int F = -1;
         const int E = -2;
@@ -27,7 +29,10 @@ namespace Generador
             bool existencia = File.Exists(path);
             log = new StreamWriter("c.Log");
             log.AutoFlush = true;
-            
+            lenguaje = new StreamWriter("C:\\generador\\Lenguaje.cs");
+            lenguaje.AutoFlush = true;
+            programa = new StreamWriter("C:\\generador\\Program.cs");
+            programa.AutoFlush = true;
             log.WriteLine("Archivo: c.gram");
             log.WriteLine(DateTime.Now);
 
@@ -47,6 +52,10 @@ namespace Generador
             string pathLog = Path.ChangeExtension(nombre, ".log");
             log = new StreamWriter(pathLog);
             log.AutoFlush = true;
+            lenguaje = new StreamWriter("C:\\generador\\Lenguaje.cs");
+            lenguaje.AutoFlush = true;
+            programa = new StreamWriter("C:\\generador\\Program.cs");
+            programa.AutoFlush = true;
             log.WriteLine("Archivo: " + nombre);
             log.WriteLine(DateTime.Now);
 
@@ -63,6 +72,8 @@ namespace Generador
         {
             archivo.Close();
             log.Close();
+            lenguaje.Close();
+            programa.Close();
         }
 
         private void clasifica(int estado)
