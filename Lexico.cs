@@ -56,6 +56,12 @@ namespace Generador
             lenguaje.AutoFlush = true;
             programa = new StreamWriter("C:\\Generico\\Program.cs");
             programa.AutoFlush = true;
+            //Requerimiento 4
+            string extension = Path.GetExtension(nombre);
+            if(extension != ".gram")
+            {
+                throw new Error("Error: El archivo no es de extension .gram", log);
+            }
             log.WriteLine("Archivo: " + nombre);
             log.WriteLine(DateTime.Now);
 
@@ -87,7 +93,7 @@ namespace Generador
                     setClasificacion(Tipos.Produce);
                     break;
                 case 3:
-                    setClasificacion(Tipos.SNT);
+                    setClasificacion(Tipos.ST);
                     break;
                 case 4:
                     setClasificacion(Tipos.FinProduccion);

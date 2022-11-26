@@ -10,25 +10,85 @@ using System.Collections.Generic;
 //                 la extension del archivo a compilar sea .gen
 //                 si no es .gen debe lanzar una excepcion
 //Requerimiento 5. Resolver la ambiguedad de ST y SNT 
+//                 Recorrer linea por linea el archivo .gram para extraer el nombre de cada produccion 
+//Requerimiento 6. Agregar el parentesis izquierdo y derecho escapados en 
+//                 la matriz de transiciones
+//Requerimiento 7. Implementar el OR y la cerradura epsilon
+//                 
 namespace Generador
 {
     public class Lenguaje : Sintaxis, IDisposable
     {
-        int tabulador = 0;
-        
+        //string cadenaImprimir = "";
+        //int tabuladorPrograma;
+        int tabuladorLenguaje;
+        string primeraProduccion;
+        int contProducciones = 0;
+        List<string> listaSNT;
+
         public Lenguaje(string nombre) : base(nombre)
         {
+            listaSNT = new List<string>();
+            //tabuladorPrograma = 0;
+            tabuladorLenguaje = 0;
+            primeraProduccion = "";
         }
         public Lenguaje()
         {
+            listaSNT = new List<string>();
+            //tabuladorPrograma = 0;
+            tabuladorLenguaje = 0;
+            primeraProduccion = "";
         }
+
         public void Dispose()
         {
             cerrar();
         }
+        private bool esSNT(string contenido)
+        {
+            return listaSNT.Contains(contenido);
+        }
+        private void agregarSNT(string contenido)
+        {
+            //Requerimiento 6.
+
+            listaSNT.Add(contenido);
+        }
         private void Programa(string produccionPrincipal)
         {
+            agregarSNT("Programa");
+            agregarSNT("Librerias");
+            agregarSNT("Variables");
+            agregarSNT("ListaIdentificadores");
+            /* cadenaImprimir =
+            "using System;\n" +
+            "using System.IO;\n" +
+            "\n" +
+            "namespace Generico\n" +
+            "{\n" +
+            "public class Program\n" +
+            "{\n" +
+            "static void Main(string[] args)\n" +
+            "{\n" +
+            "try\n" +
+            "{\n" +
+            "using (Lenguaje a = new Lenguaje())\n" +
+            "{\n" +
+            "a." + produccionPrincipal + "();\n" +
+            "}\n" +
+            "}\n" +
+            "catch (Exception e)\n" +
+            "{\n" +
+            "Console.WriteLine(e.Message);\n" +
+            "}\n" +
+            "}\n" +
+            "}\n" +
+            "}\n";
 
+
+            imprimirCodigo("programa", cadenaImprimir); 
+            */
             programa.WriteLine("using System;");
             programa.WriteLine("using System.IO;");
             programa.WriteLine("using System.Collections.Generic;");
@@ -57,9 +117,17 @@ namespace Generador
         public void gramatica()
         {
             cabecera();
-            Programa("programa");
+            primeraProduccion = getContenido();
+            Programa(primeraProduccion);
             cabeceraLenguaje();
-            listaProducciones();
+
+            listaProducciones(contProducciones);
+            
+            /* cadenaImprimir =
+            "}\n" +
+            "}";
+            imprimirCodigo("lenguaje", cadenaImprimir);
+             */
             lenguaje.WriteLine("\t}");
             lenguaje.WriteLine("}");
         }
@@ -67,12 +135,48 @@ namespace Generador
         {
             match("Gramatica");
             match(":");
-            match(Tipos.SNT);
+            match(Tipos.ST);
             match(Tipos.FinProduccion);
         }
         private void cabeceraLenguaje()
         {
-            lenguaje.WriteLine("using System;");
+
+            /* cadenaImprimir =
+            "using System;\n" +
+            "using System.Collections.Generic;\n" +
+            "namespace Generico\n" +
+            "{\n" +
+            "public class Lenguaje : Sintaxis, IDisposable\n" +
+            "{\n" +
+            "public Lenguaje(string nombre) : base(nombre)\n" +
+            "{\n" +
+            "}\n" +
+            "public Lenguaje()\n" +
+            "{\n" +
+            "}\n" +
+            "public void Dispose()\n" +
+            "{\n" +
+            "cerrar();\n" +
+            "}\n";
+            imprimirCodigo("lenguaje", cadenaImprimir); */
+            
+            identarCodigo("using System;");
+            identarCodigo("using System.Collections.Generic;");
+            identarCodigo("namespace Generico");
+            identarCodigo("{");
+            identarCodigo("public class Lenguaje : Sintaxis, IDisposable");
+            identarCodigo("{");
+            identarCodigo("public Lenguaje(string nombre) : base(nombre)");
+            identarCodigo("{");
+            identarCodigo("}");
+            identarCodigo("public Lenguaje()");
+            identarCodigo("{");
+            identarCodigo("}");
+            identarCodigo("public void Dispose()");
+            identarCodigo("{");
+            identarCodigo("cerrar();");
+            identarCodigo("}");
+            /* lenguaje.WriteLine("using System;");
             lenguaje.WriteLine("using System.Collections.Generic;");
             lenguaje.WriteLine("namespace Generico");
             lenguaje.WriteLine("{");
@@ -87,51 +191,167 @@ namespace Generador
             lenguaje.WriteLine("\t\tpublic void Dispose()");
             lenguaje.WriteLine("\t\t{");
             lenguaje.WriteLine("\t\t\tcerrar();");
-            lenguaje.WriteLine("\t\t}");
-
+            lenguaje.WriteLine("\t\t}"); */
         }
-        private void listaProducciones()
+        private void listaProducciones(int contadorProducciones)
         {
-            lenguaje.WriteLine("\t\tprivate void " + getContenido() + "()");
-            lenguaje.WriteLine("\t\t{");
-            match(Tipos.SNT);
+            /* cadenaImprimir =
+            "private void " + getContenido() + "()\n" +
+            "{\n";
+            imprimirCodigo("lenguaje", cadenaImprimir); */
+            if(contadorProducciones == 0)
+            {
+                identarCodigo("public void " + getContenido() + "()");
+                identarCodigo("{");
+                contadorProducciones++;
+            }
+            else
+            {
+                identarCodigo("private void " + getContenido() + "()");
+                identarCodigo("{");
+            }
+            match(Tipos.ST);
             match(Tipos.Produce);
             simbolos();
             match(Tipos.FinProduccion);
-            lenguaje.WriteLine("\t\t}");
+            /* cadenaImprimir = "}\n";
+            imprimirCodigo("lenguaje", cadenaImprimir); */
+            identarCodigo("}");
             if (!FinArchivo())
             {
-                listaProducciones();
+                listaProducciones(contadorProducciones);
             }
 
         }
         private void simbolos()
         {
-            if(esTipo(getContenido()))
+            if (getContenido() == "(")
             {
-                lenguaje.WriteLine("\t\t\tmatch(Tipos." + getContenido() + ");");
-                match(Tipos.SNT);
+                match("(");
+                identarCodigo("if ()");
+                identarCodigo("{");
+                simbolos();
+                match(")");
+                identarCodigo("}");
             }
-            else if(getClasificacion() == Tipos.ST)
+            else if (esTipo(getContenido()))
             {
-                lenguaje.WriteLine("\t\t\tmatch(\"" + getContenido() + "\");");
+                identarCodigo("match(Tipos." + getContenido() + ");");
                 match(Tipos.ST);
             }
-            else if(getClasificacion() == Tipos.SNT)
+            else if (esSNT(getContenido()))
             {
-                lenguaje.WriteLine("\t\t\t" + getContenido() + "();");
-                match(Tipos.SNT);
+                identarCodigo(getContenido() + "();");
+                match(Tipos.ST);
             }
-            else
+            else if (getClasificacion() == Tipos.ST)
             {
-                throw new Exception("Error de sintaxis");
+                identarCodigo("match(\"" + getContenido() + "\");");
+                match(Tipos.ST);
             }
-            
-            if (getClasificacion() != Tipos.FinProduccion)
+
+            if (getClasificacion() != Tipos.FinProduccion && getContenido() != ")")
             {
                 simbolos();
             }
         }
+
+        public void identarCodigo(string cadena)
+        {
+            if(cadena ==("}"))
+            {
+                tabuladorLenguaje--;
+            }
+            //escribimos los tabs que necesitamos
+            //cadena = new string('\t', tabuladorLenguaje)+cadena;
+            for(int i= 0; i < tabuladorLenguaje; i++)
+            {
+                lenguaje.Write("\t");
+            }
+            
+            if(cadena =="{")
+            {
+                tabuladorLenguaje++;
+            }
+            
+            
+            lenguaje.WriteLine(cadena);
+            
+        }
+
+        private void imprimirCodigo(string archivoEscritura, string cadenaImprimir)
+        {
+            string subCadena1, subCadena2;
+
+            for (int i = 0; i < cadenaImprimir.Length; i++)
+            {
+                if (cadenaImprimir[i] == '{')
+                {
+                    if (archivoEscritura == "programa")
+                    {
+                        //tabuladorPrograma++;
+                    }
+                    else if (archivoEscritura == "lenguaje")
+                    {
+                        tabuladorLenguaje++;
+                    }
+                }
+                else if (cadenaImprimir[i] == '}')
+                {
+                    if (archivoEscritura == "programa")
+                    {
+                        //tabuladorPrograma--;
+                    }
+                    else if (archivoEscritura == "lenguaje")
+                    {
+                        tabuladorLenguaje--;
+                    }
+                    
+                    if (i > 0)
+                    {
+                        //editamos la cadena y le borramos un tabulador
+                        subCadena1 = cadenaImprimir.Substring(0, i - 1);
+                        subCadena2 = cadenaImprimir.Substring(i);
+                        cadenaImprimir = subCadena1 + subCadena2;
+                    }
+                }
+
+                if (cadenaImprimir[i] == '\n')
+                {
+                    subCadena1 = cadenaImprimir.Substring(0, i + 1);
+                    subCadena2 = cadenaImprimir.Substring(i + 1);
+                    if (archivoEscritura == "programa")
+                    {
+                        //cadenaImprimir = subCadena1 + new string('\t', //tabuladorPrograma) + subCadena2;
+                    }
+                    else if (archivoEscritura == "lenguaje")
+                    {
+                        cadenaImprimir = subCadena1 + new string('\t', tabuladorLenguaje) + subCadena2;
+                    }
+                }
+                if (i == 0)
+                {
+                    if (archivoEscritura == "programa")
+                    {
+                        //cadenaImprimir = new string('\t', //tabuladorPrograma) + cadenaImprimir;
+                    }
+                    else if (archivoEscritura == "lenguaje")
+                    {
+                        cadenaImprimir = new string('\t', tabuladorLenguaje) + cadenaImprimir;
+                    }
+                }
+            }
+            //imprimimos la cadena
+            if (archivoEscritura == "lenguaje")
+            {
+                lenguaje.WriteLine(cadenaImprimir);
+            }
+            else if (archivoEscritura == "programa")
+            {
+                programa.WriteLine(cadenaImprimir);
+            }
+        }
+
         private bool esTipo(string clasificacion)
         {
             switch (clasificacion)

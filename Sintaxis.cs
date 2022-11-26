@@ -16,6 +16,7 @@ namespace Generador
 
         public void match(string espera)
         {
+            //Console.WriteLine(getContenido()+" "+espera);
             if (espera == getContenido())
             {
                 NextToken();
@@ -24,9 +25,11 @@ namespace Generador
             {
                 throw new Error("Error de sintaxis, se espera un " + espera + " en linea: " + linea, log);
             }
+            
         }
         public void match(Tipos espera)
         {
+            //Console.WriteLine(getClasificacion()+" "+espera);
             if (espera == getClasificacion())
             {
                 NextToken();
