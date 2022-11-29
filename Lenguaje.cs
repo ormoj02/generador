@@ -19,6 +19,10 @@ namespace Generador
 {
     public class Lenguaje : Sintaxis, IDisposable
     {
+        //guardamos la posicion y linea donde estamos 
+        int posicionActual;
+        int lineaActual;
+        
         int tabuladorLenguaje;
         string primeraProduccion;
         int contProducciones = 0;
@@ -48,7 +52,6 @@ namespace Generador
         private void agregarSNT(string contenido)
         {
             //Requerimiento 6.
-
             listaSNT.Add(contenido);
         }
         private void Programa(string produccionPrincipal)
@@ -90,6 +93,18 @@ namespace Generador
             primeraProduccion = getContenido();
             Programa(primeraProduccion);
             cabeceraLenguaje();
+            //guardamos la posicion y linea donde estamos
+            posicionActual = posicion;
+            lineaActual = linea;
+            int tam = getContenido().Length;
+            //agregamos a la lista de SNT lo que se clasifica como SNT
+            lenguaje.WriteLine("\t\t//Requerimiento 5.");
+            clasificarSNT();
+            //regresamos a la posicion y linea donde estabamos
+            posicion = posicionActual-tam;
+            linea = lineaActual;
+            setPosicion(posicion);
+            NextToken();
             listaProducciones(contProducciones);
             lenguaje.WriteLine("\t}");
             lenguaje.WriteLine("}");
@@ -122,7 +137,7 @@ namespace Generador
         }
         private void listaProducciones(int contadorProducciones)
         {
-            if(contadorProducciones == 0)
+            if (contadorProducciones == 0)
             {
                 identarCodigo("public void " + getContenido() + "()");
                 identarCodigo("{");
@@ -133,7 +148,6 @@ namespace Generador
                 identarCodigo("private void " + getContenido() + "()");
                 identarCodigo("{");
             }
-
             match(Tipos.ST);
             match(Tipos.Produce);
             simbolos();
@@ -168,6 +182,7 @@ namespace Generador
             }
             else if (getClasificacion() == Tipos.ST)
             {
+                
                 identarCodigo("match(\"" + getContenido() + "\");");
                 match(Tipos.ST);
             }
@@ -177,25 +192,68 @@ namespace Generador
                 simbolos();
             }
         }
+        public void clasificarSNT()
+        {
+            agregarSNT(getContenido());
+            match(Tipos.ST);
+            match(Tipos.Produce);
+            simbolosClasificarSNT();
+            match(Tipos.FinProduccion);
+            if (!FinArchivo())
+            {
+                clasificarSNT();
+            }
+        }
 
+        private void simbolosClasificarSNT()
+        {
+            if (getContenido() == "(")
+            {
+                match("(");   
+                simbolosClasificarSNT();
+                match(")");
+            }
+            else if (esTipo(getContenido()))
+            {
+                match(Tipos.ST);
+            }
+            else if (esSNT(getContenido()))
+            {
+                match(Tipos.ST);
+            }
+            else if (getClasificacion() == Tipos.ST)
+            {
+                match(Tipos.ST);
+            }
+
+            if (getClasificacion() != Tipos.FinProduccion && getContenido() != ")")
+            {
+                simbolosClasificarSNT();
+            }
+        }
         public void identarCodigo(string cadena)
         {
-            if(cadena ==("}"))
+            if (cadena == ("}"))
             {
                 tabuladorLenguaje--;
             }
-            
-            for(int i= 0; i < tabuladorLenguaje; i++)
+
+            for (int i = 0; i < tabuladorLenguaje; i++)
             {
                 lenguaje.Write("\t");
             }
-            
-            if(cadena =="{")
+
+            if (cadena == "{")
             {
                 tabuladorLenguaje++;
             }
             lenguaje.WriteLine(cadena);
-            
+
+        }
+        private void setPosicion(int pos)
+        {
+            archivo.DiscardBufferedData();
+            archivo.BaseStream.Seek(pos, SeekOrigin.Begin);
         }
         private bool esTipo(string clasificacion)
         {
