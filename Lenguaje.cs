@@ -22,7 +22,7 @@ namespace Generador
         //guardamos la posicion y linea donde estamos 
         int posicionActual;
         int lineaActual;
-        
+
         int tabuladorLenguaje;
         string primeraProduccion;
         int contProducciones = 0;
@@ -54,7 +54,7 @@ namespace Generador
             //Requerimiento 6.
             listaSNT.Add(contenido);
             //Console.WriteLine("SNT: " + contenido);
-            
+
         }
         private void Programa(string produccionPrincipal)
         {
@@ -103,18 +103,11 @@ namespace Generador
             lenguaje.WriteLine("\t\t//Requerimiento 5.");
             clasificarSNT();
             //regresamos a la posicion y linea donde estabamos
-            posicion = posicionActual-tam;
+            posicion = posicionActual - tam;
             linea = lineaActual;
             setPosicion(posicion);
             NextToken();
             listaProducciones(contProducciones);
-            Console.WriteLine("Lista:");
-            foreach (string produccion in listaSNT)
-            {
-                
-                Console.WriteLine(produccion);
-            }
-
             lenguaje.WriteLine("\t}");
             lenguaje.WriteLine("}");
         }
@@ -159,7 +152,7 @@ namespace Generador
             }
             match(Tipos.ST);
             match(Tipos.Produce);
-            simbolos();
+            simbolos(true);
             match(Tipos.FinProduccion);
             identarCodigo("}");
             if (!FinArchivo())
@@ -168,58 +161,93 @@ namespace Generador
             }
 
         }
-        private void simbolos()
+        private void simbolos(bool imprimir)
         {
-            Console.WriteLine("getContenido: " + getContenido());
-            if (getContenido() == "\\(")
+            if (imprimir)
             {
-                match("\\(");
-                
-                if(!esSNT(getContenido()))
+
+                Console.WriteLine("getContenido: " + getContenido());
+                if (getContenido() == "\\(")
                 {
-                    if(esTipo(getContenido()))
+                    match("\\(");
+
+                    if (!esSNT(getContenido()))
                     {
-                        identarCodigo("if(getClasificacion()== Tipos." + getContenido() + ")");
+                        if (esTipo(getContenido()))
+                        {
+                            identarCodigo("if(getClasificacion()== Tipos." + getContenido() + ")");
+                        }
+                        else
+                        {
+                            identarCodigo("if(getContenido() ==\"" + getContenido() + "\")");
+                        }
                     }
                     else
                     {
-                        identarCodigo("if(getContenido() ==\"" + getContenido() + "\")");
+                        throw new Exception("Error en la produccion: " + getContenido());
                     }
+                    identarCodigo("{");
+                    simbolos(imprimir);
+                    match("\\)");
+                    identarCodigo("}");
                 }
-                identarCodigo("{");
-                simbolos();
-                match("\\)");
-                identarCodigo("}");
-            }
-            else if (esTipo(getContenido()))
-            {
-                identarCodigo("match(Tipos." + getContenido() + ");");
-                match(Tipos.ST);
-            }
-            else if (esSNT(getContenido()))
-            {
-                identarCodigo(getContenido() + "();");
-                match(Tipos.ST);
-            }
-            else if (getClasificacion() == Tipos.ST)
-            {
-                
-                identarCodigo("match(\"" + getContenido() + "\");");
-                match(Tipos.ST);
-            }
+                else if (esTipo(getContenido()))
+                {
+                    identarCodigo("match(Tipos." + getContenido() + ");");
+                    match(Tipos.ST);
+                }
+                else if (esSNT(getContenido()))
+                {
+                    identarCodigo(getContenido() + "();");
+                    match(Tipos.ST);
+                }
+                else if (getClasificacion() == Tipos.ST)
+                {
 
-            if (getClasificacion() != Tipos.FinProduccion && getContenido() != ")")
+                    identarCodigo("match(\"" + getContenido() + "\");");
+                    match(Tipos.ST);
+                }
+
+                if (getClasificacion() != Tipos.FinProduccion && getContenido() != "\\)")
+                {
+                    simbolos(imprimir);
+                }
+            }
+            else
             {
-                simbolos();
+                Console.WriteLine("getContenido: " + getContenido());
+                if (getContenido() == "\\(")
+                {
+                    match("\\(");
+                    simbolos(imprimir);
+                    match("\\)");
+                }
+                else if (esTipo(getContenido()))
+                {
+                    match(Tipos.ST);
+                }
+                else if (esSNT(getContenido()))
+                {
+                    match(Tipos.ST);
+                }
+                else if (getClasificacion() == Tipos.ST)
+                {
+                    match(Tipos.ST);
+                }
+
+                if (getClasificacion() != Tipos.FinProduccion && getContenido() != "\\)")
+                {
+                    simbolos(imprimir);
+                } 
             }
         }
         public void clasificarSNT()
         {
             agregarSNT(getContenido());
-            
             match(Tipos.ST);
             match(Tipos.Produce);
-            simbolosClasificarSNT();
+            simbolos(false);
+            //simbolosClasificarSNT();
             match(Tipos.FinProduccion);
             if (!FinArchivo())
             {
@@ -227,32 +255,6 @@ namespace Generador
             }
         }
 
-        private void simbolosClasificarSNT()
-        {
-            if (getContenido() == "(")
-            {
-                match("(");   
-                simbolosClasificarSNT();
-                match(")");
-            }
-            else if (esTipo(getContenido()))
-            {
-                match(Tipos.ST);
-            }
-            else if (esSNT(getContenido()))
-            {
-                match(Tipos.ST);
-            }
-            else if (getClasificacion() == Tipos.ST)
-            {
-                match(Tipos.ST);
-            }
-
-            if (getClasificacion() != Tipos.FinProduccion && getContenido() != ")")
-            {
-                simbolosClasificarSNT();
-            }
-        }
         public void identarCodigo(string cadena)
         {
             if (cadena == ("}"))

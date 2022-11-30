@@ -1,5 +1,5 @@
 Archivo: c2.gram
-29/11/2022 09:44:13 p. m.
+30/11/2022 09:36:51 a. m.
 Gramatica ST
 : ST
 cplusplus ST
@@ -7,11 +7,18 @@ cplusplus ST
  FinProduccion
 Programa ST
 -> Produce
-# ST
-Identificador ST
-, ST
-Numero ST
 Librerias ST
+Variables ST
+Main ST
+
+ FinProduccion
+Main ST
+-> Produce
+TipoDato ST
+main ST
+( ST
+) ST
+BloqueInstrucciones ST
 
  FinProduccion
 Librerias ST
@@ -27,23 +34,67 @@ h ST
  FinProduccion
 Variables ST
 -> Produce
-\ ST
-( ST
+\( PIzq
 Identificador ST
-\ ST
+\) PDer
+
+ FinProduccion
+Printf ST
+-> Produce
+printf ST
+( ST
+\( PIzq
+Cadena ST
+\) PDer
 ) ST
 
  FinProduccion
-ListaIdentificadores ST
+Scanf ST
 -> Produce
-Numero ST
+scanf ST
+( ST
+\( PIzq
+Cadena ST
+\) PDer
+) ST
+
+ FinProduccion
+BloqueInstrucciones ST
+-> Produce
+{ ST
+ListaInstrucciones ST
+} ST
+
+ FinProduccion
+ListaInstrucciones ST
+-> Produce
+Instruccion ST
+\( PIzq
+; ST
+ListaInstrucciones ST
+\) PDer
+
+ FinProduccion
+Instruccion ST
+-> Produce
+Printf ST
+( ST
+Scanf ST
+) ST
 Programa ST
 -> Produce
-# ST
-Identificador ST
-, ST
-Numero ST
 Librerias ST
+Variables ST
+Main ST
+
+ FinProduccion
+Main ST
+-> Produce
+TipoDato ST
+main ST
+( ST
+) ST
+BloqueInstrucciones ST
 
  FinProduccion
 Librerias ST
@@ -59,9 +110,50 @@ h ST
  FinProduccion
 Variables ST
 -> Produce
-\ ST
-( ST
+\( PIzq
 Identificador ST
-\ ST
+\) PDer
+
+ FinProduccion
+Printf ST
+-> Produce
+printf ST
+( ST
+\( PIzq
+Cadena ST
+\) PDer
 ) ST
-Error de sintaxis, se espera un FinProduccion en linea: 4
+
+ FinProduccion
+Scanf ST
+-> Produce
+scanf ST
+( ST
+\( PIzq
+Cadena ST
+\) PDer
+) ST
+
+ FinProduccion
+BloqueInstrucciones ST
+-> Produce
+{ ST
+ListaInstrucciones ST
+} ST
+
+ FinProduccion
+ListaInstrucciones ST
+-> Produce
+Instruccion ST
+\( PIzq
+; ST
+ListaInstrucciones ST
+\) PDer
+
+ FinProduccion
+Instruccion ST
+-> Produce
+Printf ST
+( ST
+Scanf ST
+) ST
