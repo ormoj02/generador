@@ -1,5 +1,5 @@
 Archivo: c2.gram
-29/11/2022 09:34:01 a. m.
+29/11/2022 09:44:13 p. m.
 Gramatica ST
 : ST
 cplusplus ST
@@ -27,8 +27,10 @@ h ST
  FinProduccion
 Variables ST
 -> Produce
+\ ST
 ( ST
 Identificador ST
+\ ST
 ) ST
 
  FinProduccion
@@ -57,11 +59,9 @@ h ST
  FinProduccion
 Variables ST
 -> Produce
+\ ST
 ( ST
 Identificador ST
+\ ST
 ) ST
-
- FinProduccion
-ListaIdentificadores ST
--> Produce
-Numero ST
+Error de sintaxis, se espera un FinProduccion en linea: 4

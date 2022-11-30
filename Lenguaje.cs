@@ -9,11 +9,11 @@ using System.Collections.Generic;
 //x Requerimiento 4. El constructor Lexico() parametrizado debe validar que 
 //                 la extension del archivo a compilar sea .gen
 //                 si no es .gen debe lanzar una excepcion
-// Requerimiento 5. Resolver la ambiguedad de ST y SNT 
+//x Requerimiento 5. Resolver la ambiguedad de ST y SNT 
 //                 Recorrer linea por linea el archivo .gram para extraer el nombre de cada produccion 
 //Requerimiento 6. Agregar el parentesis izquierdo y derecho escapados en 
 //                 la matriz de transiciones
-//x Requerimiento 7. Implementar el OR y la cerradura epsilon
+// Requerimiento 7. Implementar la cerradura epsilon (parentesis izquierdo y derecho)
 //                 
 namespace Generador
 {
@@ -53,6 +53,8 @@ namespace Generador
         {
             //Requerimiento 6.
             listaSNT.Add(contenido);
+            //Console.WriteLine("SNT: " + contenido);
+            
         }
         private void Programa(string produccionPrincipal)
         {
@@ -106,6 +108,13 @@ namespace Generador
             setPosicion(posicion);
             NextToken();
             listaProducciones(contProducciones);
+            Console.WriteLine("Lista:");
+            foreach (string produccion in listaSNT)
+            {
+                
+                Console.WriteLine(produccion);
+            }
+
             lenguaje.WriteLine("\t}");
             lenguaje.WriteLine("}");
         }
@@ -161,13 +170,25 @@ namespace Generador
         }
         private void simbolos()
         {
-            if (getContenido() == "(")
+            Console.WriteLine("getContenido: " + getContenido());
+            if (getContenido() == "\\(")
             {
-                match("(");
-                identarCodigo("if ()");
+                match("\\(");
+                
+                if(!esSNT(getContenido()))
+                {
+                    if(esTipo(getContenido()))
+                    {
+                        identarCodigo("if(getClasificacion()== Tipos." + getContenido() + ")");
+                    }
+                    else
+                    {
+                        identarCodigo("if(getContenido() ==\"" + getContenido() + "\")");
+                    }
+                }
                 identarCodigo("{");
                 simbolos();
-                match(")");
+                match("\\)");
                 identarCodigo("}");
             }
             else if (esTipo(getContenido()))
@@ -195,6 +216,7 @@ namespace Generador
         public void clasificarSNT()
         {
             agregarSNT(getContenido());
+            
             match(Tipos.ST);
             match(Tipos.Produce);
             simbolosClasificarSNT();
